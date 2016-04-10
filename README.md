@@ -7,6 +7,6 @@ A tutorial for the complete project can be found at xxxx.
 
 The basic hardware and software setup can be found at https://learn.adafruit.com/neopixels-on-raspberry-pi. 
 
-Credit to Jeremy Garff for providing the rpi_ws281x library at https://github.com/jgarff. 
+The NeoPixel library for the Raspberry Pi (rpi_ws281x library) can be found at https://github.com/jgarff. 
 
-Credit to The Weather Underground, LLC (WUL) for providing access to their data by api at www.wunderground.com/weather/api.
+The weather data and API are provided by Weather Underground, LLC (WUL). An API key can be obtained at www.wunderground.com/weather/api.
