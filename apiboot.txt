@@ -23,4 +23,4 @@
 # 37.776289,-122.395234
 # 
 # personal weather station (example is North Fountain Square KININDIA88)
-pws:KININDIA88
+# pws:KININDIA88
