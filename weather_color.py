@@ -26,6 +26,7 @@ GMULT = .8                          # multiplier to adjust for green LED brightn
 BMULT = .8                          # multiplier to adjust for blue LED brightness
 COLORVAL = 10                       # set max number for color array
 BLUE = 2                            # RGB blue truncate value
+PATH_NAME = "//home//pi//weather_color//"  # set path to find apiboot.txt and log.txt files
 TEMPMIN = 0                         # minimum value for normalized temperature range
 TEMPMAX = 100                       # maximum value for normalized temperature range
 TEMPDELTA = TEMPMAX - TEMPMIN       # delta value for normalized temperature range
@@ -51,13 +52,13 @@ def readApiBootFile():
     i = 0
     a = [None]*2
     try:
-        textFile = open("apiboot.txt", "r")
+        textFile = open(PATH_NAME + "apiboot.txt", "r")
         while i < 2:
             a[i] = textFile.readline().rstrip('\n')
             if a[i][0] != "#":
                 i += 1
     except:
-        textFile = open("log.txt", "w")
+        textFile = open(PATH_NAME + "log.txt", "w")
         textFile.write("Failed to read apiboot.txt file. Check that file exists and contains the three lines: \n-your-api-key-\n-your-state-\n-your-city-")
         textFile.close()
     else:
@@ -66,7 +67,7 @@ def readApiBootFile():
 
 def writeLogFile(text, mode):
     # writes information to log.txt file
-    textFile = open("log.txt", mode)
+    textFile = open(PATH_NAME + "log.txt", mode)
     textFile.write(text)
     textFile.close()
 
@@ -88,7 +89,7 @@ def wheel(pos):
         pos -= 170
         return Color(0, pos * 3, 255 - pos * 3)
 
-def rainbow(strip, wait_ms=10, iterations=16):
+def rainbow(strip, wait_ms=10, iterations=17):
     # draw rainbow that fades across all pixels at once
     # iterations set to 30 which roughly corresponds to the TIME_WAIT_START constant
     for j in range(256*iterations):
@@ -264,7 +265,6 @@ def main():
     boot = True                         # boot bit is used for tracking first call after start up
     success = False                     # success bit is used for tracking the success or failure of api calls
     loopCount = 0                       # set intial count of api calls
-    lastTime = 'start'                  # set initial string to track forecast time changes
     writeLogFile('-----Initializing-----', 'w')
     rainbow(strip)                      # initialize LED strip to rainbow cycle
     apiVal = readApiBootFile()
@@ -298,9 +298,6 @@ def main():
                 # call function to parse weather data
                 writeLogFile('\n\n-----Parsing-----', 'a')
                 tempData, pressData, humidData, precipData, windData, fctData, fctTime = parseWeatherData(obj)
-                #if fctTime[0] != lastTime:
-                    #saveData = saveWeatherData(tempData, pressData, humidData, precipData, windData, fctData)
-                    #lastTime = fctTime[0]
                 # call function to assign color values to weather data
                 writeLogFile('\n\n-----Coloring-----', 'a')
                 tempColor, pressColor, humidColor, precipColor, windColor, fctColor = colorAssign(tempData, pressData, humidData, precipData, windData, fctData)
