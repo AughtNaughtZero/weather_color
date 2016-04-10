@@ -2,10 +2,10 @@
 # additional query option for the api to search against.
 # 
 # your api key (obtain from weather underground), 
-63371145dd554fe6
+123456789abcdefe
 # 
 # State (example is IN) and City (example is Indianapolis) - leave the double // between state and city
-# IN//Noblesville
+# IN//Indianapolis
 # 
 # City outside of the USA - leave the double // between country and city
 # France//Paris
@@ -14,13 +14,13 @@
 # autoip
 # 
 # Zip or Postal Code
-# 46062
+# 46202
 # 
 # Airport Code
-# SFO
+# IND
 # 
 # Latitude, Longitude Coordinates
 # 37.776289,-122.395234
 # 
-# personal weather station (example is Downtown Noblesville KINNOBLE11)
-pws:KINNOBLE11
+# personal weather station (example is North Fountain Square KININDIA88)
+pws:KININDIA88
