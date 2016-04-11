@@ -1,26 +1,26 @@
-# Replace the text as needed in the following lines - API key required - and uncomment one
-# additional query option for the api to search against.
+#Replace the text as needed in the following lines - API key required - and uncomment one
+#additional query option for the api to search against.
 # 
-# your api key (obtain from weather underground), 
+#Your api key (obtain from weather underground), 
 123456789abcdefe
 # 
 # State (example is IN) and City (example is Indianapolis) - leave the double // between state and city
-# IN//Indianapolis
+FL//Miami
 # 
-# City outside of the USA - leave the double // between country and city
-# France//Paris
+#City outside of the USA - leave the double // between country and city
+#France//Paris
 # 
-# AutoIP Address Location
-# autoip
+#AutoIP Address Location
+#autoip
 # 
-# Zip or Postal Code
-# 46202
+#Zip or Postal Code
+#33141
 # 
-# Airport Code
-# IND
+#Airport Code
+#MIA
 # 
-# Latitude, Longitude Coordinates
-# 37.776289,-122.395234
+#Latitude, Longitude Coordinates
+#25.7907,80.1300
 # 
-# personal weather station (example is North Fountain Square KININDIA88)
-# pws:KININDIA88
+#Personal weather station (example is North Fountain Square KININDIA88)
+#pws:KFLMIAMI96
