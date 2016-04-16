@@ -57,9 +57,10 @@ TIME_BETWEEN_CALLS = 900            # time in seconds between calls to the weath
 TIME_BETWEEN_FAILED = 180           # time in seconds between failed calls to the weather api
 TIME_WAIT_STARTUP = 60              # time in seconds to wait after bootup to make first call
 
-def readApiBootFile():
-    # opens apiboot.txt file and reads the api key (obtain from weather underground), state (IN), and city (Indianapolis)
-    # from the first three lines of the file, ignoring the '#' for comments
+def readApiBootFile(strip):
+    # opens apiboot.txt file and reads the api key (obtain from weather underground) and one uncommented query line
+    # this function ignores the '#' in the file for comments
+    # this function will utilize a red color wipe across the LED matrix if the file fails to read
     i = 0
     a = [None]*2
     try:
@@ -69,9 +70,10 @@ def readApiBootFile():
             if a[i][0] != "#":
                 i += 1
     except:
-        textFile = open(PATH_NAME + "log.txt", "w")
-        textFile.write("Failed to read apiboot.txt file. Check that file exists and contains the three lines: \n-your-api-key-\n-your-state-\n-your-city-")
         textFile.close()
+        writeLogFile("\n\n-----Error-----\n\nFailed to read apiboot.txt file.\nCheck that file exists.\nCheck that the file contains your API key.\nCheck that the file has at least one query line uncommented.", "a")
+        colorWipe(strip, Color(0,255,0))
+        raise SystemExit('failed to read apiboot file')
     else:
         textFile.close()
         return a
@@ -153,8 +155,9 @@ def scrollArray(strip, weatherData, wait_ms=200):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
-def parseWeatherData(obj):
+def parseWeatherData(strip, obj):
     # parse data obtained from the weather api
+    # this function will utilize a red color wipe across the LED matrix if no data is returned from the API
     temp = [None]*OBJMAX                # array to hold temperature values
     press = [None]*OBJMAX               # array to hold pressure values
     humid = [None]*OBJMAX               # array to hold humidity values
@@ -162,15 +165,23 @@ def parseWeatherData(obj):
     wind = [None]*OBJMAX                # array to hold wind speed values
     fct = [None]*OBJMAX                 # array to hold coded weather condition values
     fcttime = [None]*OBJMAX             # array to hold time of forecast
-    for i in range(OBJMAX):
-        temp[i] = int(obj["hourly_forecast"][i]["temp"]["english"])
-        press[i] = float(obj["hourly_forecast"][i]["mslp"]["english"])
-        humid[i] = int(obj["hourly_forecast"][i]["humidity"])
-        precip[i] = int(obj["hourly_forecast"][i]["pop"])
-        wind[i] = int(obj["hourly_forecast"][i]["wspd"]["english"])
-        fct[i] = int(obj["hourly_forecast"][i]["fctcode"])
-        fcttime[i] = str(obj["hourly_forecast"][i]["FCTTIME"]["civil"])
-    return temp, press, humid, precip, wind, fct, fcttime
+    error = 'foo'
+    try:
+        error = str(obj["response"]["error"]["type"])
+    except:
+        for i in range(OBJMAX):
+            temp[i] = int(obj["hourly_forecast"][i]["temp"]["english"])
+            press[i] = float(obj["hourly_forecast"][i]["mslp"]["english"])
+            humid[i] = int(obj["hourly_forecast"][i]["humidity"])
+            precip[i] = int(obj["hourly_forecast"][i]["pop"])
+            wind[i] = int(obj["hourly_forecast"][i]["wspd"]["english"])
+            fct[i] = int(obj["hourly_forecast"][i]["fctcode"])
+            fcttime[i] = str(obj["hourly_forecast"][i]["FCTTIME"]["civil"])
+        return temp, press, humid, precip, wind, fct, fcttime
+    else:
+        writeLogFile('\n\n-----Error-----\n\n' + error,'a')
+        colorWipe(strip, Color(0,255,0))
+        raise SystemExit('some error from api')
 
 def colorAssign(temp, press, humid, precip, wind, fct):
     # assign color values to weather data
@@ -276,9 +287,22 @@ def main():
     boot = True                         # boot bit is used for tracking first call after start up
     success = False                     # success bit is used for tracking the success or failure of api calls
     loopCount = 0                       # set intial count of api calls
-    writeLogFile('-----Initializing-----', 'w')
-    rainbow(strip)                      # initialize LED strip to rainbow cycle
-    apiVal = readApiBootFile()
+    
+    # demonstrate LED strip with rainbow cycle during Pi startup
+    writeLogFile('-----Demonstrate Rainbow Chase-----', 'w')
+    rainbow(strip)
+    
+    # check for internet connection using common url and utilize a red color wipe across the LED matrix if no connection is available
+    writeLogFile('\n\n-----Check Internet Connection-----', 'a')
+    try:
+        response = urlopen('https://www.google.com/').read()
+    except:
+        writeLogFile('\n\nFailed to connect to internet.', 'a')
+        colorWipe(strip, Color(0,255,0))
+        raise SystemExit('cannot connect to internet')
+    
+    # main routine to fetch, parse, and color weather data
+    apiVal = readApiBootFile(strip)
     apiUrl = "http://api.wunderground.com/api/" + str(apiVal[0]) + "/hourly/q/" + str(apiVal[1]) + ".json"
     while loopCount >= 0:
         # loop through weather functions at designated elapsed time intervals
@@ -291,9 +315,9 @@ def main():
                 response = urlopen(apiUrl).read().decode('utf8')
             except:
                 # handle failed api call
-                # utilizes red color wipe to signal api call failed at boot
+                # utilizes yellow color wipe to signal api call failed at boot
                 if boot == True:
-                    colorWipe(strip, Color(0,255,0))
+                    colorWipe(strip, Color(255,255,0))
                 boot = False
                 success = False
                 loopCount += 1
@@ -308,7 +332,7 @@ def main():
                 obj = json.loads(response)
                 # call function to parse weather data
                 writeLogFile('\n\n-----Parsing-----', 'a')
-                tempData, pressData, humidData, precipData, windData, fctData, fctTime = parseWeatherData(obj)
+                tempData, pressData, humidData, precipData, windData, fctData, fctTime = parseWeatherData(strip, obj)
                 # call function to assign color values to weather data
                 writeLogFile('\n\n-----Coloring-----', 'a')
                 tempColor, pressColor, humidColor, precipColor, windColor, fctColor = colorAssign(tempData, pressData, humidData, precipData, windData, fctData)
