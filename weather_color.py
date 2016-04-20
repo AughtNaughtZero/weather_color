@@ -36,21 +36,20 @@ RMULT = 1                           # multiplier to adjust for red LED brightnes
 GMULT = .8                          # multiplier to adjust for green LED brightness
 BMULT = .8                          # multiplier to adjust for blue LED brightness
 COLORVAL = 10                       # set max number for color array
-BLUE = 2                            # RGB blue truncate value
 PATH_NAME = "//home//pi//weather_color//"  # set path to find apiboot.txt and log.txt files
 TEMPMIN = 0                         # minimum value for normalized temperature range
 TEMPMAX = 100                       # maximum value for normalized temperature range
 TEMPDELTA = TEMPMAX - TEMPMIN       # delta value for normalized temperature range
-PRESSMIN = 29.0                     # minimum value for normalized pressure range
-PRESSMAX = 30.8                     # maximum value for normalized pressure range
+PRESSMIN = 28.8                     # minimum value for normalized pressure range
+PRESSMAX = 31.1                     # maximum value for normalized pressure range
 PRESSDELTA = PRESSMAX - PRESSMIN    # delta value for normalized pressure range
-HUMIDMIN = 5                        # minimum value for normalized humidity range
-HUMIDMAX = 95                       # maximum value for normalized humidity range
+HUMIDMIN = 0                        # minimum value for normalized humidity range
+HUMIDMAX = 100                      # maximum value for normalized humidity range
 HUMIDDELTA = HUMIDMAX - HUMIDMIN    # delta value for normalized humidity range
-PRECIPMIN = 5                       # minimum value for normalized precipitation range
-PRECIPMAX = 95                      # maximum value for normalized precipitation range
+PRECIPMIN = 0                       # minimum value for normalized precipitation range
+PRECIPMAX = 100                     # maximum value for normalized precipitation range
 PRECIPDELTA = PRECIPMAX - PRECIPMIN # delta value for normalized precipitation range
-WINDMIN = 5                         # minimum value for normalized wind speed range
+WINDMIN = 0                         # minimum value for normalized wind speed range
 WINDMAX = 45                        # maximum value for normalized wind speed range
 WINDDELTA = WINDMAX - WINDMIN       # delta value for normalized wind speed range
 TIME_BETWEEN_CALLS = 900            # time in seconds between calls to the weather api
@@ -191,32 +190,18 @@ def colorAssign(temp, press, humid, precip, wind, fct):
     precipClr = [None]*OBJMAX              # array to hold precipitation (probability of) values
     windClr = [None]*OBJMAX                # array to hold wind speed values
     fctClr = [None]*OBJMAX                 # array to hold coded weather condition values
+    offsetA = 1.0                          # offset value used to help persuade normalized colors
+    offsetB = 2.5                          # offset value used to help persuade normalized colors
+    blue = 2                               # RGB blue truncate value
+    
     for i in range(OBJMAX):
-        # assign color values for temperature data
-        if temp[i] <= 0:
-            tempClr[i] = 5
-        elif temp[i] > 5 and temp[i] <= 15:
+        # normalize color values for temperature data
+        if temp[i] <= TEMPMIN:
             tempClr[i] = 0
-        elif temp[i] > 15 and temp[i] <= 25:
-            tempClr[i] = 1
-        elif temp[i] > 25 and temp[i] <= 35:
-            tempClr[i] = 2
-        elif temp[i] > 35 and temp[i] <= 45:
-            tempClr[i] = 3
-        elif temp[i] > 45 and temp[i] <= 55:
-            tempClr[i] = 4
-        elif temp[i] > 55 and temp[i] <= 65:
-            tempClr[i] = 5
-        elif temp[i] > 65 and temp[i] <= 75:
-            tempClr[i] = 6
-        elif temp[i] > 75 and temp[i] <= 85:
-            tempClr[i] = 7
-        elif temp[i] > 85 and temp[i] <= 95:
-            tempClr[i] = 8
-        elif temp[i] > 95 and temp[i] <= 105:
-            tempClr[i] = 9
+        elif temp[i] >= TEMPMAX:
+            tempClr[i] = COLORVAL
         else:
-            tempClr[i] = 10
+            tempClr[i] = int(offsetA + (COLORVAL - offsetA)*((temp[i] - TEMPMIN)/(TEMPDELTA)))
         
         # normalize color values for pressure data
         if press[i] <= PRESSMIN:
@@ -224,31 +209,31 @@ def colorAssign(temp, press, humid, precip, wind, fct):
         elif press[i] >= PRESSMAX:
             pressClr[i] = COLORVAL
         else:
-            pressClr[i] = int(COLORVAL*((press[i] - PRESSMIN)/(PRESSDELTA)))
+            pressClr[i] = int(offsetA + (COLORVAL - offsetA)*((press[i] - PRESSMIN)/(PRESSDELTA)))
             
         # normalize color values for humidity data - except truncate low values to RGB blue
         if humid[i] <= HUMIDMIN:
-            humidClr[i] = BLUE
+            humidClr[i] = blue
         elif humid[i] >= HUMIDMAX:
             humidClr[i] = COLORVAL
         else:
-            humidClr[i] = int(BLUE + (COLORVAL - BLUE)*((humid[i] - HUMIDMIN)/(HUMIDDELTA)))
+            humidClr[i] = int(offsetB + (COLORVAL - offsetB)*((humid[i] - HUMIDMIN)/(HUMIDDELTA)))
 
         # normalize color values for precipation data - except truncate low values to RGB blue
         if precip[i] <= PRECIPMIN:
-            precipClr[i] = BLUE
+            precipClr[i] = blue
         elif precip[i] >= PRECIPMAX:
             precipClr[i] = COLORVAL
         else:
-            precipClr[i] = int(BLUE + (COLORVAL - BLUE)*((precip[i] - PRECIPMIN)/(PRECIPDELTA)))
+            precipClr[i] = int(offsetB + (COLORVAL - offsetB)*((precip[i] - PRECIPMIN)/(PRECIPDELTA)))
 
         # normalize color values for wind speed data - except truncate low values to RGB blue
         if wind[i] <= WINDMIN:
-            windClr[i] = BLUE
+            windClr[i] = blue
         elif wind[i] >= WINDMAX:
             windClr[i] = COLORVAL
         else:
-            windClr[i] = int(BLUE + (COLORVAL - BLUE)*((wind[i] - WINDMIN)/(WINDDELTA)))
+            windClr[i] = int(offsetB + (COLORVAL - offsetB)*((wind[i] - WINDMIN)/(WINDDELTA)))
 
         # assign color values to forecast codes
         if fct[i] == 1:
@@ -259,7 +244,7 @@ def colorAssign(temp, press, humid, precip, wind, fct):
             fctClr[i] = 4
         elif fct[i] == 4 or fct[i] == 5 or fct[i] == 6 or fct[i] == 18 or fct[i] == 20:
             fctClr[i] = 3
-        elif fct[i] == 19 or fct[i] == 21:
+        elif fct[i] == 16:
             fctClr[i] = 2
         elif fct[i] == 10 or fct[i] == 12:
             fctClr[i] = 8
@@ -267,7 +252,7 @@ def colorAssign(temp, press, humid, precip, wind, fct):
             fctClr[i] = 9
         elif fct[i] == 14 or fct[i] == 15 or fct[i] == 24:
             fctClr[i] = 10
-        elif fct[i] == 16:
+        elif fct[i] == 19 or fct[i] == 21:
             fctClr[i] = 1
         elif fct[i] == 8 or fct[i] == 9 or fct[i] == 22 or fct[i] == 23:
             fctClr[i] = 0
