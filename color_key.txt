@@ -1,0 +1,86 @@
+Color Representations for the Weather Color LED Matrix Display
+Range are approximate. Actual values are normalized between min and max limits.
+
+0:[255,0,255] = Magenta
+1:[125,0,255] = Violet
+2:[0,0,255] = Blue
+3:[0,125,255] = Ocean
+4:[0,255,255] = Cyan
+5:[0,255,125] = Turquoise
+6:[0,255,0] = Green
+7:[125,255,0] = Spring
+8:[255,255,0] = Yellow
+9:[255,125,0] = Orange
+10:[255,0,0] = Red
+
+
+Row 1 = Temperature (in degrees Fahrenheit)
+< 0 is Magenta
+0 to 11 is Violet
+12 to 22 is Blue
+23 to 33 is Ocean
+34 to 44 is Cyan
+45 to 55 is Turquoise
+56 to 66 is Green
+67 to 77 is Spring
+78 to 88 is Yellow
+88 to 99 is Orange
+>= 100 is Red
+
+Row 2 = Pressure (in inches of mercury)
+< 28.8 is Magenta
+28.8 to 29.0 is Violet
+29.1 to 29.3 is Blue
+29.4 to 29.5 is Ocean
+29.6 to 29.8 is Cyan
+29.9 to 30.0 is Turquoise
+30.1 to 30.3 is Green
+30.4 to 30.5 is Spring
+30.6 to 30.8 is Yellow
+30.9 to 31.0 is Orange
+>= 31.1 is Red
+
+
+Row 3 = Humidity (in percent, relative)
+< 6 is Blue
+7 to 19 is Ocean
+20 to 33 is Cyan
+34 to 46 is Turquoise
+47 to 59 is Green
+60 to 73 is Spring
+74 to 86 is Yellow
+87 to 99 is Orange
+100 is Red
+
+Row 4 = Wind Speed (in miles per hour)
+< 3 is Blue
+4 to 8 is Ocean
+9 to 14 is Cyan
+15 to 20 is Turquoise
+21 to 26 is Green
+27 to 32 is Spring
+33 to 38 is Yellow
+39 to 44 is Orange
+>= 45 is Red
+
+Row 5 = Precipitation (in percent chance of)
+< 6 is Blue
+7 to 19 is Ocean
+20 to 33 is Cyan
+34 to 46 is Turquoise
+47 to 59 is Green
+60 to 73 is Spring
+74 to 86 is Yellow
+87 to 99 is Orange
+100 is Red
+
+Row 6 = Forecast (descriptive)
+Very Cold or Blowing Snow or Chance of Ice Pellets or Ice Pellets = Magenta
+Snow Showers or Snow = Violet
+Flurries = Blue
+Cloudy or Hazy or Foggy or Chance of Snow Showers = Ocean
+Partly Cloudy = Turquoise
+Clear = Green
+Chance of Showers or Chance of Rain = Yellow
+Very Hot or Showers or Rain = Orange
+Chance of Thunderstorm or Thunderstorm or Blizzard = Red
